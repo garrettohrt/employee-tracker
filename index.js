@@ -7,7 +7,7 @@ var connection = mysql.createConnection({
     user: 'root',
     database: 'employee_db',
     password: ''
-})
+});
 
 const promptMenu = () => {
     return inquirer.prompt([
@@ -89,10 +89,58 @@ const promptAddDepartment = () => {
         })
 };
 
-const promptAddRole = () => {}
+const promptAddRole = () => {
+return connection.promise().query(
+    "SELECT department.id, department.name FROM department;")
+    .then(([departments]) => {
+        let departmentChoices = departments.map(({
+            id,
+            name
+        }) => ({
+            name: name,
+            value: id
+        }));
 
-const promptAddEmployee = () => {}
+        inquirer.prompt([{
+            type: 'input',
+            name: 'title',
+            message: 'Enter the name of the role you would like to add'
+        },
+        {
+            type: 'list',
+            name: 'department',
+            message: 'Which department are you from?',
+            choices: departmentChoices
+        },
+        {
+            type: 'input',
+            name:'salary',
+            message: 'Enter your salary'
+        }
 
-const promptUpdateRole = () => {}
+    ])
+    .then(({ title, department, salary }) => {
+        const query = connection.query(
+            'INSERT INTO role SET ?',
+            {
+                title: title,
+                department_id: department,
+                salary: salary
+            },
+            function (err, res) {
+                if (err) throw err;
+            }
+        )
+    }).then(() => selectRoles())
+})
+};
+
+const promptAddEmployee = () => {
+
+}
+
+const promptUpdateRole = () => {
+
+}
 
 promptMenu();
