@@ -49,7 +49,7 @@ const promptMenu = () => {
 
 const selectDepartments = () => {
     connection.query(
-        'SELECT * FROM department;',
+        "SELECT * FROM department;",
         (err, results) => {
             console.table(results);
             promptMenu();
@@ -58,7 +58,7 @@ const selectDepartments = () => {
 
 const selectRoles = () => {
     connection.query(
-        'SELECT * FROM role;',
+        "SELECT * FROM role;",
         (err, results) => {
             console.table(results);
             promptMenu();
@@ -90,57 +90,126 @@ const promptAddDepartment = () => {
 };
 
 const promptAddRole = () => {
-return connection.promise().query(
-    "SELECT department.id, department.name FROM department;")
-    .then(([departments]) => {
-        let departmentChoices = departments.map(({
-            id,
-            name
-        }) => ({
-            name: name,
-            value: id
-        }));
+    return connection.promise().query(
+        "SELECT department.id, department.name FROM department;")
+        .then(([departments]) => {
+            let departmentChoices = departments.map(({
+                id,
+                name
+            }) => ({
+                name: name,
+                value: id
+            }));
 
-        inquirer.prompt([{
-            type: 'input',
-            name: 'title',
-            message: 'Enter the name of the role you would like to add'
-        },
-        {
-            type: 'list',
-            name: 'department',
-            message: 'Which department are you from?',
-            choices: departmentChoices
-        },
-        {
-            type: 'input',
-            name:'salary',
-            message: 'Enter your salary'
-        }
-
-    ])
-    .then(({ title, department, salary }) => {
-        const query = connection.query(
-            'INSERT INTO role SET ?',
-            {
-                title: title,
-                department_id: department,
-                salary: salary
+            inquirer.prompt([{
+                type: 'input',
+                name: 'title',
+                message: 'Enter the name of the role you would like to add'
             },
-            function (err, res) {
-                if (err) throw err;
+            {
+                type: 'list',
+                name: 'department',
+                message: 'Which department are you from?',
+                choices: departmentChoices
+            },
+            {
+                type: 'input',
+                name: 'salary',
+                message: 'Enter your salary'
             }
-        )
-    }).then(() => selectRoles())
-})
+
+            ])
+                .then(({ title, department, salary }) => {
+                    const query = connection.query(
+                        "INSERT INTO role SET ?",
+                        {
+                            title: title,
+                            department_id: department,
+                            salary: salary
+                        },
+                        function (err, res) {
+                            if (err) throw err;
+                        }
+                    )
+                }).then(() => selectRoles())
+        })
 };
 
 const promptAddEmployee = () => {
+    return connection.promise().query("SELECT R.id, R.title FROM role R;")
+        .then(([employees]) => {
+            let titleChoices = employees.map(({
+                id,
+                title
 
-}
+            }) => ({
+                value: id,
+                name: title
+            }))
+
+            connection.promise().query("SELECT E.id, CONCAT(E.first_name,' ',E.last_name) AS manager FROM employee E;")
+                .then(([managers]) => {
+                    let managerChoices = managers.map(({
+                        id,
+                        manager
+                    }) => ({
+                        value: id,
+                        name: manager
+                    }));
+
+                    inquirer.prompt(
+                        [{
+                            type: 'input',
+                            name: 'firstName',
+                            message: 'What is the employees first name?',
+                        },
+                        {
+                            type: 'input',
+                            name: 'lastName',
+                            message: 'What is the employees last name?',
+                        },
+                        {
+                            type: 'list',
+                            name: 'role',
+                            message: 'What is the employees role?',
+                            choices: titleChoices
+                        },
+                        {
+                            type: 'list',
+                            name: 'manager',
+                            message: 'Who is the employees manager?',
+                            choices: managerChoices
+                        }
+
+                        ])
+                        .then(({ firstName, lastName, role, manager }) => {
+                            const query = connection.query(
+                                "INSERT INTO employee SET?",
+                                {
+                                    first_name: firstName,
+                                    last_name: lastName,
+                                    role_id: role,
+                                    manager_id: manager
+                                },
+                                (err, res) => {
+                                    if (err) throw err;
+                                    console.log({ firstName, lastName, role, manager })
+                                }
+                            )
+                        })
+                        .then(() => selectEmployees())
+                })
+        })
+};
 
 const promptUpdateRole = () => {
+    
+    return connection.promise().query("SELECT R.id, R.title, R.salary, R.department_id FROM role R;")
+       .then(([roles]) => {
+            let roleChoices = roles.map(({
 
+            }))
+})
 }
 
 promptMenu();
