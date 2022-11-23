@@ -3,5 +3,24 @@
     "console.table": "^0.10.0",
     "inquirer": "^8.2.5",
     "mysql2": "^2.3.3"
-  }
+  },
+  "name": "employee-tracker",
+  "description": "",
+  "version": "1.0.0",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/garrettohrt/employee-tracker.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/garrettohrt/employee-tracker/issues"
+  },
+  "homepage": "https://github.com/garrettohrt/employee-tracker#readme"
 }

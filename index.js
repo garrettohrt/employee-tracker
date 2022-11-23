@@ -91,7 +91,7 @@ const promptAddDepartment = () => {
 
 const promptAddRole = () => {
     return connection.promise().query(
-        "SELECT department.id, department.name FROM department;")
+        "SELECT D.id, D.name FROM department D;")
         .then(([departments]) => {
             let departmentChoices = departments.map(({
                 id,
@@ -147,7 +147,9 @@ const promptAddEmployee = () => {
                 name: title
             }))
 
-            connection.promise().query("SELECT E.id, CONCAT(E.first_name,' ',E.last_name) AS manager FROM employee E;")
+            connection
+                .promise()
+                .query("SELECT E.id, CONCAT(E.first_name,' ',E.last_name) AS manager FROM employee E;")
                 .then(([managers]) => {
                     let managerChoices = managers.map(({
                         id,
@@ -202,14 +204,54 @@ const promptAddEmployee = () => {
         })
 };
 
-const promptUpdateRole = () => {
-    
-    return connection.promise().query("SELECT R.id, R.title, R.salary, R.department_id FROM role R;")
-       .then(([roles]) => {
-            let roleChoices = roles.map(({
+const promptUpdateEmployeeRole = () => {
 
-            }))
-})
-}
+    return connection.promise().query("SELECT R.id, R.title, R.salary, R.department_id FROM role R;")
+        .then(([roles]) => {
+            let roleChoices = roles.map(({
+                id,
+                title
+
+            }) => ({
+                value: id,
+                name: title
+            }));
+
+            inquirer.prompt([{
+                type: 'list',
+                name: 'role',
+                message: 'Which role do you want to update?',
+                choices: roleChoices
+            }])
+                .then(role => {
+                    console.log(role);
+                    inquirer.prompt([{
+                        type: 'input',
+                        name: 'title',
+                        message: 'Enter the name of your title'
+
+                    },
+                    {
+                        type: 'input',
+                        name: 'salary',
+                        message: 'Enter your salary'
+
+                    }
+                    ])
+                        .then(({ title, salary }) => {
+                            const query = connection.query('UPDATE role SET title = ?, salary = ? WHERE id = ?',
+                                [
+                                    title,
+                                    salary,
+                                    role.id
+                                ],
+                                (err, res) => {
+                                    if (err) throw err;
+                                })
+                        })
+                        .then(() => promptMenu())
+                })
+        });
+};
 
 promptMenu();
